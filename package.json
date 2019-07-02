@@ -1,10 +1,47 @@
 {
-  "name": "REPLACE_ME",
+  "name": "moleculer-demo",
   "version": "1.0.0",
-  "description": "Simple Hello World that listens on localhost:8080",
-  "main": "server.js",
+  "description": "My Moleculer microservices project",
   "scripts": {
-    "test": "echo \"no test specified\" && exit 0",
-    "start": "node server.js"
+    "dev": "moleculer-runner --repl --hot services",
+    "start": "moleculer-runner",
+    "cli": "moleculer connect ",
+    "ci": "jest --watch",
+    "test": "jest --coverage",
+    "lint": "eslint services",
+    "dc:up": "docker-compose up --build -d",
+    "dc:down": "docker-compose down",
+    "integration_test": "mocha test/integration_test --timeout 10000 --exit"
+  },
+  "keywords": [
+    "microservices",
+    "moleculer"
+  ],
+  "author": "",
+  "devDependencies": {
+    "eslint": "^5.10.0",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
+    "moleculer-repl": "^0.5.3",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "chai-http": "^4.3.0"
+  },
+  "dependencies": {
+    "moleculer": "^0.13.0",
+    "moleculer-db": "^0.8.0",
+    "moleculer-db-adapter-mongo": "^0.4.2",
+    "moleculer-web": "^0.8.0"
+  },
+  "engines": {
+    "node": ">= 8.x.x"
+  },
+  "jest": {
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "rootDir": "./services",
+    "roots": [
+      "../test"
+    ]
   }
 }

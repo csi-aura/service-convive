@@ -3,10 +3,11 @@ pipeline {
     label "jenkins-nodejs"
   }
   environment {
-    ORG = 'csi-aura'
+    ORG = 'crouzicien'
     APP_NAME = 'service-convive'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
-    DOCKER_REGISTRY_ORG = 'csi-aura'
+    DOCKER_REGISTRY_ORG = 'crouzicien'
+    KUBE_ENVIRONMENT = "dev"
   }
   stages {
     stage('CI Build and push snapshot') {
@@ -19,7 +20,6 @@ pipeline {
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
       }
       steps {
-        container('jenkinsxio/jx:2.0.119')
         container('nodejs') {
           sh "npm install"
           sh "CI=true DISPLAY=:99 npm test"
@@ -32,7 +32,8 @@ pipeline {
         }
       }
     }
-    stage('Build Release') {
+
+    stage('1 - Build') {
       when {
         branch 'master'
       }
@@ -47,17 +48,51 @@ pipeline {
           // so we can retrieve the version in later steps
           sh "echo \$(jx-release-version) > VERSION"
           sh "jx step tag --version \$(cat VERSION)"
-        }
-        container('jenkinsxio/jx:2.0.119')
-        container('nodejs') {
+        
           sh "npm install"
-          sh "CI=true DISPLAY=:99 npm test"
+        }
+
+
+      }
+    }
+
+    stage('2 - Units tests') {
+      when {
+        branch 'master'
+      }
+      steps {
+        container('nodejs') {
+          // sh "CI=true DISPLAY=:99 npm run unit_test"
+          sh "ls"
+        }
+      }
+    }
+
+    stage('3 - Build docker image') {
+      when {
+        branch 'master'
+      }
+      steps {
+        container('nodejs') {
           sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
+        }
+      }
+    }
+
+    stage('4 - Vulnerability test') {
+      when {
+        branch 'master'
+      }
+      steps {
+        container('nodejs') {
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
         }
       }
     }
-    stage('Promote to Environments') {
+
+
+
+    stage('5 - Go to staging environment') {
       when {
         branch 'master'
       }
@@ -75,6 +110,25 @@ pipeline {
         }
       }
     }
+
+
+    stage('6 - Integration tests') {
+      when {
+        branch 'master'
+      }
+
+      environment  {
+          KUBE_ENVIRONMENT = "jx-staging"
+      }
+
+      steps {
+        container('nodejs') {
+          // sh "CI=true DISPLAY=:99 npm run integration_test"
+        }
+      }
+    }
+
+
   }
   post {
         always {

@@ -1,5 +1,6 @@
-draft.toml
-charts/
-NOTICE
-LICENSE
-README.md
+docker-compose.env
+docker-compose.yml
+Dockerfile
+node_modules
+test
+.vscode

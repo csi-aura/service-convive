@@ -1,6 +1,13 @@
 FROM node:9-slim
-ENV PORT 8080
-EXPOSE 8080
+
 WORKDIR /usr/src/app
+
+ENV PORT 3000
+
+COPY package*.json ./
+RUN npm install
+
 COPY . .
-CMD ["npm", "start"]
+
+EXPOSE 3000
+CMD ["npm", "run", "start"]
