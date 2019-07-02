@@ -3,10 +3,10 @@ pipeline {
     label "jenkins-nodejs"
   }
   environment {
-    ORG = 'crouzicien'
+    ORG = 'csi-aura'
     APP_NAME = 'service-convive'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
-    DOCKER_REGISTRY_ORG = 'crouzicien'
+    DOCKER_REGISTRY_ORG = 'csi-aura'
     KUBE_ENVIRONMENT = "dev"
   }
   stages {
