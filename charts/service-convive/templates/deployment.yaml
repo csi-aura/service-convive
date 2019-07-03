@@ -23,16 +23,14 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "if [[ '$(echo $(MONGO_USER_SECRET))' !=  '' ]]; then export MONGO_USER_PASS=$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@; else export MONGO_USER_PASS='';  fi;"]
 
         env:
 {{- range $pkey, $pval := .Values.env }}
         - name: {{ $pkey }}
           value: {{ quote $pval }}
 {{- end }}
+        - name: MONGO_URI
+          value: mongodb://$(MONGO_URL_CONFIGMAP):$(MONGO_PORT_CONFIGMAP)/$(MONGO_BASE)?replicatSet=$(MONGO_RS_CONFIGMAP)
         - name: MONGO_BASE
           value: {{ .Chart.Name }}
         - name: MONGO_URL_CONFIGMAP
