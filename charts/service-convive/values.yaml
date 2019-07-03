@@ -15,7 +15,7 @@ knativeDeploy: false
 mongoConnexion: true
 
 service:
-  name: chaise
+  name: service-convive
   type: ClusterIP
   externalPort: 80
   internalPort: 3000
