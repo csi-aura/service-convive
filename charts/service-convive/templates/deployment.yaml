@@ -29,8 +29,7 @@ spec:
         - name: {{ $pkey }}
           value: {{ quote $pval }}
 {{- end }}
-        - name: MONGO_URI
-          value: mongodb://{{MONGO_URL_CONFIGMAP}}:{{MONGO_PORT_CONFIGMAP}}/{{MONGO_BASE}}?replicatSet={{MONGO_RS_CONFIGMAP}}
+
         - name: MONGO_BASE
           value: {{ .Chart.Name }}
         - name: MONGO_URL_CONFIGMAP
@@ -58,6 +57,9 @@ spec:
             secretKeyRef:
               name: mongo-credentials
               key: password
+        - name: MONGO_URI
+          value: mongodb://$(MONGO_URL_CONFIGMAP):$(MONGO_PORT_CONFIGMAP)/$(MONGO_BASE)?replicatSet=$(MONGO_RS_CONFIGMAP)
+
         ports:
         - containerPort: {{ .Values.service.internalPort }}
         livenessProbe:
