@@ -123,7 +123,7 @@ pipeline {
 
       steps {
         container('nodejs') {
-          // sh "CI=true DISPLAY=:99 npm run integration_test"
+          sh "CI=true DISPLAY=:99 npm run integration_test"
         }
       }
     }
