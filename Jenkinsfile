@@ -63,7 +63,7 @@ pipeline {
       steps {
         container('nodejs') {
           // sh "CI=true DISPLAY=:99 npm run unit_test"
-          sh "ls"
+          
         }
       }
     }
