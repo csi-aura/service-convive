@@ -12,14 +12,25 @@ module.exports = {
     adapter: new MongoAdapter(process.env.MONGO_URI),
     collection: "convives",
     actions: {
+
         create: {
-            // Validator schema for params
             params: {
-                nom: { type: "string", min: 2 },
-                prenom: { type: "string", min: 2 }
+                nom: {
+                    type: "string",
+                    min: 2
+                },
+                prenom: {
+                    type: "string",
+                    min: 2
+                }
             }
         },
-        
+
+
+        health() {
+            return true;
+        },
+
     }
 
 };
