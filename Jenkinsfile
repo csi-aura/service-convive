@@ -128,7 +128,7 @@ pipeline {
                 sh "CI=true DISPLAY=:99 npm run integration_test"
             }
             catch (exc) {
-                echo 'Something failed, I should sound the klaxons!'
+                echo 'Something failed, I should sound the klaxons !'
                 throw
             }
               
