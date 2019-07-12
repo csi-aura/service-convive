@@ -7,10 +7,10 @@ console.log("URI MONGODB => ", process.env.MONGO_URI)
 
 module.exports = {
     name: "convives",
-
     mixins: [DbService],
     adapter: new MongoAdapter(process.env.MONGO_URI, {
-        mongos: true
+        mongos: true,
+        useNewUrlParser: true
     }),
     collection: "convives",
     actions: {
