@@ -18,7 +18,8 @@ module.exports = {
                 nom: { type: "string", min: 2 },
                 prenom: { type: "string", min: 2 }
             }
-        }
+        },
+        
     }
 
 };
