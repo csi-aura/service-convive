@@ -9,7 +9,9 @@ module.exports = {
     name: "convives",
 
     mixins: [DbService],
-    adapter: new MongoAdapter(process.env.MONGO_URI),
+    adapter: new MongoAdapter(process.env.MONGO_URI, {
+        mongos: true
+    }),
     collection: "convives",
     actions: {
 
