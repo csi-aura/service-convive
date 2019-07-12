@@ -121,15 +121,27 @@ pipeline {
           KUBE_ENVIRONMENT = "jx-staging"
       }
 
+
       steps {
         container('nodejs') {
-          sh "CI=true DISPLAY=:99 npm run integration_test"
+            try {
+                sh "CI=true DISPLAY=:99 npm run integration_test"
+            }
+            catch (exc) {
+                echo 'Something failed, I should sound the klaxons!'
+                throw
+            }
+              
         }
       }
     }
-
-
   }
+
+
+
+
+
+
   post {
         always {
           cleanWs()
