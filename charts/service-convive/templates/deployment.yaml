@@ -58,7 +58,7 @@ spec:
               name: mongo-credentials
               key: password
         - name: MONGO_URI
-          value: mongodb://$(MONGO_URL_CONFIGMAP):$(MONGO_PORT_CONFIGMAP)/$(MONGO_BASE)?replicaSet=$(MONGO_RS_CONFIGMAP)
+          value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP):$(MONGO_PORT_CONFIGMAP)/$(MONGO_BASE)
 
         ports:
         - containerPort: {{ .Values.service.internalPort }}
