@@ -6,7 +6,7 @@
  #  Modified By: Sylvain (contact@cashsystemes.eu>)                            #
  #                                                                             #
  #  File Created: Monday, 24th June 2019 10:45:20 am                           #
- #  Last Modified: Friday, 28th June 2019 9:49:48 am                           #
+ #  Last Modified: Friday, 12th July 2019 12:03:12 pm                          #
  #                                                                             #
  #  Copyright 2018 - 2019, Cash Systemes Industries                            #
  */
@@ -16,17 +16,24 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 chai.use(chaiHttp);
 
-console.log(process.env)
+// console.log(process.env)
+
+let server
+
+try {
+    // REGEX for ip in string
+    let r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
+    let app_name = process.env.APP_NAME || 'chaise'
+    let app_ingress_ip = process.env.HUDSON_URL.match(r)[0] || '192.168.30.244';
+    let app_env = process.env.KUBE_ENVIRONMENT || 'jx-staging'
+    server = `http://${app_name}.${app_env}.${app_ingress_ip}.nip.io`
+
+} catch (error) {
+    server = `http://localhost:3000`
+}
 
 
-// REGEX for ip in string
-let r = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/
 
-let app_name = process.env.APP_NAME || 'chaise'
-let app_ingress_ip = process.env.HUDSON_URL.match(r)[0] || '192.168.30.244';
-let app_env = process.env.KUBE_ENVIRONMENT || 'jx-staging'
-
-let server = `http://${app_name}.${app_env}.${app_ingress_ip}.nip.io`
 
 
 
@@ -40,37 +47,28 @@ describe('Waiting mongoDb connexion', () => {
 /*
  * Test the API
  */
-describe('/GET flush', () => {
+describe('TEST DU SERVICE CONVIVE', () => {
+    let _id = null
+    let book = {
+        nom: "Sylvain",
+        prenom: "Pip"
+    }
 
-    it('it should flush the list', done => {
+
+
+
+    it('Ajout d\'un convive', done => {
+
         chai.request(server)
-            .get('/flush')
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a('object');
-                res.body.should.have.property('result').eql([]);
-                res.body.should.have.property('message').eql('0 convive(s).');
-                done();
-            });
-    });
-
-
-
-
-
-    it('it should POST a convive', (done) => {
-        let book = {
-            nom: "Sylvain",
-            prenom: "Pip"
-        }
-        chai.request(server)
-            .post('/add')
+            .post('/api/convives')
             .send(book)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('result').eql(1);
-                res.body.should.have.property('message').eql("Le client Sylvain Pip à bien été ajouté.");
+                res.body.should.have.property('nom').eql(book.nom);
+                res.body.should.have.property('prenom').eql(book.prenom);
+                res.body.should.have.property('_id').to.be.a('string');
+                _id = res.body._id
                 done();
             });
     });
@@ -78,18 +76,55 @@ describe('/GET flush', () => {
 
 
 
-
-    it('it should GET the not empty list', (done) => {
+    it('Liste des convives', (done) => {
         chai.request(server)
-            .get('/list')
+            .get('/api/convives')
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('result');
-                res.body.result[0].should.have.property('nom').eql("Sylvain");
-                res.body.result[0].should.have.property('prenom').eql("Pip");
-                res.body.should.have.property('message').eql('1 convive(s).');
+                res.body.should.have.property('rows').to.be.a('array');
+                res.body.should.have.property('total').to.be.a('number');
+                res.body.should.have.property('page').to.be.a('number');
+                res.body.should.have.property('pageSize').to.be.a('number');
+                res.body.should.have.property('totalPages').to.be.a('number');
                 done();
             });
     });
+
+
+
+
+    it('Find the convive added previously', (done) => {
+        chai.request(server)
+            .get('/api/convives/' + _id)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('nom').eql(book.nom);
+                res.body.should.have.property('prenom').eql(book.prenom);
+                res.body.should.have.property('_id').eql(_id)
+                done();
+            });
+    });
+
+
+
+    it('Delete the convive added previously', (done) => {
+        chai.request(server)
+            .delete('/api/convives/' + _id)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('nom').eql(book.nom);
+                res.body.should.have.property('prenom').eql(book.prenom);
+                res.body.should.have.property('_id').eql(_id)
+                done();
+            });
+    });
+
+
+
+
+
+
 });

@@ -31,7 +31,8 @@
     "moleculer": "^0.13.9",
     "moleculer-db": "^0.8.0",
     "moleculer-db-adapter-mongo": "^0.4.2",
-    "moleculer-web": "^0.8.0"
+    "moleculer-web": "^0.8.0",
+    "readyness": "^0.1.0"
   },
   "engines": {
     "node": ">= 8.x.x"
