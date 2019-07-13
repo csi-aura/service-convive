@@ -37,11 +37,11 @@ spec:
             configMapKeyRef:
               name: adresse-mongodb
               key: mongo_url
-        - name: MONGO_PORT_CONFIGMAP
+        - name: MONGO_OPTIONS_CONFIGMAP
           valueFrom:
             configMapKeyRef:
               name: adresse-mongodb
-              key: mongo_port
+              key: mongo_options
         - name: MONGO_RS_CONFIGMAP
           valueFrom:
             configMapKeyRef:
@@ -58,7 +58,7 @@ spec:
               name: mongo-credentials
               key: password
         - name: MONGO_URI
-          value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP):$(MONGO_PORT_CONFIGMAP)/$(MONGO_BASE)
+          value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP)/$(MONGO_BASE)?$(MONGO_OPTIONS_CONFIGMAP)
 
         ports:
         - containerPort: {{ .Values.service.internalPort }}
