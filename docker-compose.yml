@@ -5,7 +5,7 @@ services:
   api:
     build:
       context: .
-    image: moleculer-demo
+    image: service-convive
     env_file: docker-compose.env
     environment:
       SERVICES: api
@@ -20,7 +20,7 @@ services:
   greeter:
     build:
       context: .
-    image: moleculer-demo
+    image: service-convive
     env_file: docker-compose.env
     environment:
       SERVICES: greeter

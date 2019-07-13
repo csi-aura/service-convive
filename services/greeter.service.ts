@@ -1,6 +1,7 @@
 "use strict";
+import { ServiceSchema } from "moleculer";
 
-module.exports = {
+const GreeterService: ServiceSchema = {
 	name: "greeter",
 
 	/**
@@ -13,7 +14,7 @@ module.exports = {
 	/**
 	 * Service dependencies
 	 */
-	dependencies: [],	
+	dependencies: [],
 
 	/**
 	 * Actions
@@ -36,12 +37,12 @@ module.exports = {
 		 */
 		welcome: {
 			params: {
-				name: "string"
+				name: "string",
 			},
 			handler(ctx) {
 				return `Welcome, ${ctx.params.name}`;
-			}
-		}
+			},
+		},
 	},
 
 	/**
@@ -68,14 +69,16 @@ module.exports = {
 	/**
 	 * Service started lifecycle event handler
 	 */
-	started() {
+	// started() {
 
-	},
+	// },
 
 	/**
 	 * Service stopped lifecycle event handler
 	 */
-	stopped() {
+	// stopped() {
 
-	}
+	// },
 };
+
+export = GreeterService;

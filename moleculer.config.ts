@@ -1,4 +1,5 @@
 "use strict";
+import { BrokerOptions, Errors } from "moleculer";
 
 /**
  * Moleculer ServiceBroker configuration file
@@ -11,11 +12,11 @@
  * 	For example to overwrite the "logLevel", use `LOGLEVEL=warn` env var.
  * 	To overwrite a nested parameter, e.g. retryPolicy.retries, use `RETRYPOLICY_RETRIES=10` env var.
  *  
- * 	To overwrite broker’s deeply nested default options, which are not presented in "moleculer.config.js", 
+ * 	To overwrite broker’s deeply nested default options, which are not presented in "moleculer.config.ts", 
  * 	via environment variables, use the `MOL_` prefix and double underscore `__` for nested properties in .env file. 
  * 	For example, to set the cacher prefix to `MYCACHE`, you should declare an env var as `MOL_CACHER__OPTIONS__PREFIX=MYCACHE`.
  */
-module.exports = {
+const brokerConfig: BrokerOptions = {
 	// Namespace of nodes to segment your nodes on the same network.
 	namespace: "",
 	// Unique node identifier. Must be unique in a namespace.
@@ -51,7 +52,7 @@ module.exports = {
 		// Backoff factor for delay. 2 means exponential backoff.
 		factor: 2,
 		// A function to check failed requests.
-		check: err => err && !!err.retryable
+		check: (err: Errors.MoleculerRetryableError) => err && !!err.retryable,
 	},
 
 	// Limit of calling level. If it reaches the limit, broker will throw an MaxCallLevelError error. (Infinite loop protection)
@@ -79,7 +80,7 @@ module.exports = {
 		// Available values: "RoundRobin", "Random", "CpuUsage", "Latency"
 		strategy: "RoundRobin",
 		// Enable local action call preferring.
-		preferLocal: true
+		preferLocal: true,
 	},
 
 	// Settings of Circuit Breaker. More info: https://moleculer.services/docs/0.13/fault-tolerance.html#Circuit-Breaker
@@ -95,10 +96,10 @@ module.exports = {
 		// Number of milliseconds to switch from open to half-open state
 		halfOpenTime: 10 * 1000,
 		// A function to check failed requests.
-		check: err => err && err.code >= 500
+		check: (err: Errors.MoleculerRetryableError) => err && err.code >= 500,
 	},
 
-	// Settings of bulkhead feature. More info: https://moleculer.services/docs/0.13/fault-tolerance.html#Bulkhead
+    // Settings of bulkhead feature. More info: https://moleculer.services/docs/0.13/fault-tolerance.html#Bulkhead
 	bulkhead: {
 		// Enable feature.
 		enabled: false,
@@ -131,7 +132,7 @@ module.exports = {
 
 	// Called after broker created.
 	created(broker) {
-		
+
 	},
 
 	// Called after broker starte.
@@ -145,5 +146,7 @@ module.exports = {
 	},
 
 	// Register custom REPL commands.
-	replCommands: null
+	replCommands: null,
 };
+
+export = brokerConfig;

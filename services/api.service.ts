@@ -1,22 +1,21 @@
-"use strict";
+import { ServiceSchema } from "moleculer";
+import ApiGateway = require("moleculer-web");
 
-const ApiGateway = require("moleculer-web");
-
-module.exports = {
+const ApiService: ServiceSchema = {
 	name: "api",
+
 	mixins: [ApiGateway],
 
 	// More info about settings: https://moleculer.services/docs/0.13/moleculer-web.html
 	settings: {
-		port: 3000,
+		port: process.env.PORT || 3000,
 
 		routes: [{
 			path: "/api",
 			whitelist: [
 				// Access to any actions in all services under "/api" URL
-				"**"
+				"**",
 			],
-			
 			aliases: {
 				"REST convives": "convives"
 			}
@@ -24,7 +23,9 @@ module.exports = {
 
 		// Serve assets from "public" folder
 		assets: {
-			folder: "public"
-		}
-	}
+			folder: "public",
+		},
+	},
 };
+
+export = ApiService;
