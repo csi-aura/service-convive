@@ -49,7 +49,7 @@ pipeline {
           sh "echo \$(jx-release-version) > VERSION"
           sh "jx step tag --version \$(cat VERSION)"
         
-          sh "npm install"
+          sh "npm install && npm run build && npm prune --production"
         }
 
 
