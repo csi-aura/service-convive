@@ -42,11 +42,6 @@ spec:
             configMapKeyRef:
               name: adresse-mongodb
               key: mongo_options
-        - name: MONGO_RS_CONFIGMAP
-          valueFrom:
-            configMapKeyRef:
-              name: adresse-mongodb
-              key: mongo_rs
         - name: MONGO_USER_SECRET
           valueFrom:
             secretKeyRef:
