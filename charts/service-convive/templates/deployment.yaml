@@ -30,7 +30,7 @@ spec:
           value: {{ quote $pval }}
 {{- end }}
 
-        - name: MONGO_BASE
+        - name: APP_NAME
           value: {{ .Chart.Name }}
         - name: MONGO_URL_CONFIGMAP
           valueFrom:
@@ -53,7 +53,9 @@ spec:
               name: mongo-credentials
               key: password
         - name: MONGO_URI
-          value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP)/$(MONGO_BASE)?$(MONGO_OPTIONS_CONFIGMAP)
+          value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP)/$(APP_NAME)?$(MONGO_OPTIONS_CONFIGMAP)
+        - name: KAFKA_URI
+          value: 192.168.30.245:9092,192.168.30.249:9092,192.168.30.250:9092
 
         ports:
         - containerPort: {{ .Values.service.internalPort }}
