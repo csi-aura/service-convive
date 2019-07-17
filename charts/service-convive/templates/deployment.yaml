@@ -56,7 +56,7 @@ spec:
           value: mongodb://$(MONGO_USER_SECRET):$(MONGO_PASS_SECRET)@$(MONGO_URL_CONFIGMAP)/$(APP_NAME)?$(MONGO_OPTIONS_CONFIGMAP)
         - name: KAFKA_URI
           valueFrom:
-            secretKeyRef:
+            configMapKeyRef:
               name: kafka-config
               key: kafka_brokers
 
