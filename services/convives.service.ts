@@ -59,8 +59,8 @@ const ConviveService: ServiceSchema = {
 
 					/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
 					if (
-						message.headers.kind === "convive" &&
-						message.headers.groupId != kafkaDriver.groupId
+						message.headers.kind.toString() === "convive" &&
+						message.headers.groupId.toString() != kafkaDriver.groupId
 					) {
 						this.logger.info(
 							`Demande de modification de base venant d'un autre service :
@@ -72,7 +72,7 @@ const ConviveService: ServiceSchema = {
 								Data : ${message.value}`);
 
 						/**CRUD Routes */
-						switch (message.headers.crud_action) {
+						switch (message.headers.crud_action.toString()) {
 							case "CREATE":
 								break;
 							case "UPDATE":
