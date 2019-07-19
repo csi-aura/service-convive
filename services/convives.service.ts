@@ -61,23 +61,24 @@ const ConviveService: ServiceSchema = {
 
 					/**Lecture de tous les messages du/des topics abonnées */
 					eachMessage: async ({ topic, partition, message }: any) => {
+						let mess = JSON.parse(message.value.toString())
 
 						/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
 						if (
-							message.headers.kind.toString() === "convive" &&
-							message.headers.groupId.toString() != kafkaDriver.groupId
+							mess.headers.kind === "convive" &&
+							mess.headers.groupId != kafkaDriver.groupId
 						) {
 							this.logger.info(
-								`Demande de modification de base venant d'un autre service :
+								`Demande de modification de ${mess.headers.kind} venant d'un autre service :
 									Topic : ${topic}
-									Type de donnée : ${message.headers.kind}
-									Action effectuée : ${message.headers.crud_action}
-									Provient du client : ${message.headers.clientId}
-									Le client provient du groupe : ${message.headers.groupId}
-									Data : ${message.value}`);
+									Type de donnée : ${mess.headers.kind}
+									Action effectuée : ${mess.headers.crud_action}
+									Provient du client : ${mess.headers.clientId}
+									Le client provient du groupe : ${mess.headers.groupId}
+									Data : ${mess.data}`);
 
 							/**CRUD Routes */
-							switch (message.headers.crud_action.toString()) {
+							switch (mess.headers.crud_action) {
 								case "CREATE":
 									break;
 								case "UPDATE":
