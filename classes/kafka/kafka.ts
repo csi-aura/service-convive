@@ -1,8 +1,6 @@
 const { Kafka, logLevel } = require("kafkajs");
 const uuid = require("uuid/v4");
 
-// const kafkaNode = require("kafka-node");
-
 export class KafkaDriver {
 	private cli: any;
 	private clientId: string;

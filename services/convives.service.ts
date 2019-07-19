@@ -2,10 +2,12 @@
 
 import { ServiceSchema, Errors } from "moleculer";
 import { KafkaDriver } from "../classes/kafka/kafka";
-const kafkaDriver = new KafkaDriver();
 
 const DbService = require("moleculer-db");
 const MongoAdapter = require("moleculer-db-adapter-mongo");
+
+const kafkaDriver = new KafkaDriver();
+
 
 const ConviveService: ServiceSchema = {
 	/**
@@ -53,38 +55,41 @@ const ConviveService: ServiceSchema = {
 			this.logger.info("kafka adapter has connected successfully.");
 
 			/**Reception */
-			kafkaDriver.receive().run({
-				/**Lecture de tous les messages du/des topics abonnées */
-				eachMessage: async ({ topic, partition, message }: any) => {
+			kafkaDriver
+				.receive()
+				.run({
 
-					/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
-					if (
-						message.headers.kind.toString() === "convive" &&
-						message.headers.groupId.toString() != kafkaDriver.groupId
-					) {
-						this.logger.info(
-							`Demande de modification de base venant d'un autre service :
-								Topic : ${topic}
-								Type de donnée : ${message.headers.kind}
-								Action effectuée : ${message.headers.crud_action}
-								Provient du client : ${message.headers.clientId}
-								Le client provient du groupe : ${message.headers.groupId}
-								Data : ${message.value}`);
+					/**Lecture de tous les messages du/des topics abonnées */
+					eachMessage: async ({ topic, partition, message }: any) => {
 
-						/**CRUD Routes */
-						switch (message.headers.crud_action.toString()) {
-							case "CREATE":
-								break;
-							case "UPDATE":
-								break;
-							case "DELETE":
-								break;
-							default:
-								break;
+						/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
+						if (
+							message.headers.kind.toString() === "convive" &&
+							message.headers.groupId.toString() != kafkaDriver.groupId
+						) {
+							this.logger.info(
+								`Demande de modification de base venant d'un autre service :
+									Topic : ${topic}
+									Type de donnée : ${message.headers.kind}
+									Action effectuée : ${message.headers.crud_action}
+									Provient du client : ${message.headers.clientId}
+									Le client provient du groupe : ${message.headers.groupId}
+									Data : ${message.value}`);
+
+							/**CRUD Routes */
+							switch (message.headers.crud_action.toString()) {
+								case "CREATE":
+									break;
+								case "UPDATE":
+									break;
+								case "DELETE":
+									break;
+								default:
+									break;
+							}
 						}
 					}
-				}
-			});
+				});
 		} catch (e) {
 			throw new Errors.MoleculerServerError(
 				"Unable to connect to kafka.",
