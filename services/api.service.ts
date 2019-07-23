@@ -21,10 +21,19 @@ const ApiService: ServiceSchema = {
 			path: "/api",
 			whitelist: [
 				// Access to any actions in all services under "/api" URL
-				"**",
+				"convives.list",
+				"convives.get",
+				"convives.create_perso",
+				"convives.update",
+				"convives.remove",
 			],
 			aliases: {
-				"REST convives": "convives"
+				// "REST convives": "convives",
+				"GET convives": "convives.list",
+                "GET convives/:id": "convives.get",
+                "POST convives": "convives.create_perso",
+                "PUT convives/:id": "convives.update",
+                "DELETE convives/:id": "convives.remove"
 			}
 		}],
 
