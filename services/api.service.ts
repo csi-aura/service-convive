@@ -1,5 +1,12 @@
+"use strict";
+
+import { Modules } from "../modules/modules";
+Modules.init()
+
+
 import { ServiceSchema } from "moleculer";
 import ApiGateway = require("moleculer-web");
+
 
 const ApiService: ServiceSchema = {
 	name: "api",
@@ -25,6 +32,17 @@ const ApiService: ServiceSchema = {
 		assets: {
 			folder: "public",
 		},
+
+
+		cors: {
+			origin: "*",
+			methods: ["GET", "OPTIONS", "POST", "PUT", "DELETE"],
+			allowedHeaders: "*",
+			//exposedHeaders: "*",
+			credentials: true,
+			maxAge: null
+		},
+		
 	},
 };
 

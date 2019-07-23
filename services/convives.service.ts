@@ -1,12 +1,12 @@
 "use strict";
 
 import { ServiceSchema, Errors } from "moleculer";
-import { KafkaDriver } from "../classes/kafka/kafka";
+import { Modules, ModelModules } from "../modules/modules";
+
 
 const DbService = require("moleculer-db");
 const MongoAdapter = require("moleculer-db-adapter-mongo");
 
-const kafkaDriver = new KafkaDriver();
 
 
 const ConviveService: ServiceSchema = {
@@ -42,6 +42,11 @@ const ConviveService: ServiceSchema = {
 		// Heartbeat for kubernetes
 		health() {
 			return true;
+		},
+
+		// Heartbeat for kubernetes
+		test(ctx) {
+			// ctx.call('')
 		}
 	},
 
@@ -49,13 +54,16 @@ const ConviveService: ServiceSchema = {
 	 * Service started lifecycle event handler
 	 */
 	async started() {
+		/** Récuperation des autres classes dans le CallClass */
+		this.cc = Modules.get()
+
 		try {
 			/**Connexion */
-			await kafkaDriver.connexion();
+			await this.cc.kafka.connexion()
 			this.logger.info("kafka adapter has connected successfully.");
 
 			/**Reception */
-			kafkaDriver
+			this.cc.kafka
 				.receive()
 				.run({
 
@@ -66,7 +74,7 @@ const ConviveService: ServiceSchema = {
 						/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
 						if (
 							mess.headers.kind === "convive" &&
-							mess.headers.groupId != kafkaDriver.groupId
+							mess.headers.groupId != this.cc.kafka.groupId
 						) {
 							this.logger.info(
 								`Demande de modification de ${mess.headers.kind} venant d'un autre service :
@@ -104,7 +112,7 @@ const ConviveService: ServiceSchema = {
 	 */
 	async stopped() {
 		try {
-			await kafkaDriver.deconnexion();
+			await this.cc.kafka.deconnexion();
 			this.logger.warn("kafka adapter has disconnected.");
 		} catch (e) {
 			this.logger.warn("Unable to stop kafka connection gracefully.", e);
@@ -113,17 +121,17 @@ const ConviveService: ServiceSchema = {
 
 	entityCreated(json: {}, ctx: any) {
 		this.logger.info("New entity created!", json);
-		kafkaDriver.send("CREATE", json);
+		this.cc.kafka.send("CREATE", json);
 	},
 
 	entityUpdated(json: {}, ctx: any) {
 		this.logger.info(`Entity updated by '${ctx.meta.user.name}' user!`);
-		kafkaDriver.send("UPDATE", json);
+		this.cc.kafka.send("UPDATE", json);
 	},
 
 	entityRemoved(json: {}, ctx: any) {
 		this.logger.info("Entity removed", json);
-		kafkaDriver.send("DELETE", json);
+		this.cc.kafka.send("DELETE", json);
 	}
 };
 

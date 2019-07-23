@@ -1,15 +1,19 @@
+"use strict";
+
 const { Kafka, logLevel } = require("kafkajs");
 const uuid = require("uuid/v4");
 
 export class KafkaDriver {
+	private static _instance: KafkaDriver;
 	private cli: any;
 	private clientId: string;
 	private brokers: string[];
 	private topics: string[];
 	private consumer: any;
 	private producer: any;
-
 	public groupId: string;
+
+
 
 	constructor() {
 		this.groupId = process.env.APP_NAME || `test-service-in-dev-${uuid()}`;
@@ -37,6 +41,18 @@ export class KafkaDriver {
 			groupId: this.groupId
 		});
 	}
+
+
+
+
+
+    public static getInstance(): KafkaDriver {
+        return this._instance || (this._instance = new this());
+	}
+	
+
+
+
 
 	public async connexion() {
 		await this.consumer.connect();
