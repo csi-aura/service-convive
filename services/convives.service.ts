@@ -45,10 +45,13 @@ const ConviveService: ServiceSchema = {
 		},
 
 		// Heartbeat for kubernetes
-		test(ctx) {
-			// ctx.call('')
+		create_perso( ctx: any) {
+			this.cc.kafka.send("CREATE", ctx.params);
 		}
 	},
+
+
+
 
 	/**
 	 * Service started lifecycle event handler
@@ -56,82 +59,24 @@ const ConviveService: ServiceSchema = {
 	async started() {
 		/** Récuperation des autres classes dans le CallClass */
 		this.cc = Modules.get()
-
-		try {
-			/**Connexion */
-			await this.cc.kafka.connexion()
-			this.logger.info("kafka adapter has connected successfully.");
-
-			/**Reception */
-			this.cc.kafka
-				.receive()
-				.run({
-
-					/**Lecture de tous les messages du/des topics abonnées */
-					eachMessage: async ({ topic, partition, message }: any) => {
-						let mess = JSON.parse(message.value.toString())
-
-						/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
-						if (
-							mess.headers.kind === "convive" &&
-							mess.headers.groupId != this.cc.kafka.groupId
-						) {
-							this.logger.info(
-								`Demande de modification de ${mess.headers.kind} venant d'un autre service :
-									Topic : ${topic}
-									Type de donnée : ${mess.headers.kind}
-									Action effectuée : ${mess.headers.crud_action}
-									Provient du client : ${mess.headers.clientId}
-									Le client provient du groupe : ${mess.headers.groupId}
-									Data : ${mess.data}`);
-
-							/**CRUD Routes */
-							switch (mess.headers.crud_action) {
-								case "CREATE":
-									break;
-								case "UPDATE":
-									break;
-								case "DELETE":
-									break;
-								default:
-									break;
-							}
-						}
-					}
-				});
-		} catch (e) {
-			throw new Errors.MoleculerServerError(
-				"Unable to connect to kafka.",
-				e.message
-			);
-		}
 	},
 
 	/**
 	 * Service stoped lifecycle event handler
 	 */
-	async stopped() {
-		try {
-			await this.cc.kafka.deconnexion();
-			this.logger.warn("kafka adapter has disconnected.");
-		} catch (e) {
-			this.logger.warn("Unable to stop kafka connection gracefully.", e);
-		}
-	},
+	async stopped() {},
 
+	
 	entityCreated(json: {}, ctx: any) {
 		this.logger.info("New entity created!", json);
-		this.cc.kafka.send("CREATE", json);
 	},
 
 	entityUpdated(json: {}, ctx: any) {
 		this.logger.info(`Entity updated by '${ctx.meta.user.name}' user!`);
-		this.cc.kafka.send("UPDATE", json);
 	},
 
 	entityRemoved(json: {}, ctx: any) {
 		this.logger.info("Entity removed", json);
-		this.cc.kafka.send("DELETE", json);
 	}
 };
 

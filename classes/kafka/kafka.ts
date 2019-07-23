@@ -1,5 +1,8 @@
 "use strict";
 
+import { Modules, ModelModules } from "../../modules/modules";
+
+
 const { Kafka, logLevel } = require("kafkajs");
 const uuid = require("uuid/v4");
 
@@ -12,6 +15,8 @@ export class KafkaDriver {
 	private consumer: any;
 	private producer: any;
 	public groupId: string;
+	private cc: ModelModules;
+	molecular_broker: any;
 
 
 
@@ -46,15 +51,19 @@ export class KafkaDriver {
 
 
 
-    public static getInstance(): KafkaDriver {
-        return this._instance || (this._instance = new this());
+	public static getInstance(): KafkaDriver {
+		return this._instance || (this._instance = new this());
 	}
-	
 
-
+	/**Récupère le broker molécular pour éffectuer les appels sur les services */
+	public push_broker(molecular_broker: any) {
+		this.molecular_broker = molecular_broker
+	}
 
 
 	public async connexion() {
+		this.cc = Modules.get()
+
 		await this.consumer.connect();
 		await this.producer.connect();
 
@@ -71,7 +80,7 @@ export class KafkaDriver {
 	public async send(action: string, data: any) {
 		let message = {
 			/** Header du message */
-			headers : {
+			headers: {
 				kind: "convive",
 				crud_action: action,
 				groupId: this.groupId,
@@ -91,7 +100,41 @@ export class KafkaDriver {
 		});
 	}
 
+
 	public receive() {
-		return this.consumer;
+		this.consumer
+			.run({
+
+				/**Lecture de tous les messages du/des topics abonnées */
+				eachMessage: async ({ topic, partition, message }: any) => {
+					let mess = JSON.parse(message.value.toString())
+
+					/**Filtre les message consernant les convives et ne venant pas de ce groupe de service */
+					if (mess.headers.kind === "convive") {
+
+						this.molecular_broker.logger.info(
+							`Demande de modification de ${mess.headers.kind} venant d'un autre service :
+							Topic : ${topic}
+							Type de donnée : ${mess.headers.kind}
+							Action effectuée : ${mess.headers.crud_action}
+							Provient du client : ${mess.headers.clientId}
+							Le client provient du groupe : ${mess.headers.groupId}
+							Data : ${mess.data}`);
+
+						/**CRUD Routes */
+						switch (mess.headers.crud_action) {
+							case "CREATE":
+								this.molecular_broker.call('convives.create', mess.data)
+								break;
+							case "UPDATE":
+								break;
+							case "DELETE":
+								break;
+							default:
+								break;
+						}
+					}
+				}
+			});
 	}
 }

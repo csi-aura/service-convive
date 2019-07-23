@@ -1,5 +1,6 @@
 "use strict";
 import { BrokerOptions, Errors } from "moleculer";
+import { Modules, ModelModules } from "./modules/modules";
 
 /**
  * Moleculer ServiceBroker configuration file
@@ -99,7 +100,7 @@ const brokerConfig: BrokerOptions = {
 		check: (err: Errors.MoleculerRetryableError) => err && err.code >= 500,
 	},
 
-    // Settings of bulkhead feature. More info: https://moleculer.services/docs/0.13/fault-tolerance.html#Bulkhead
+	// Settings of bulkhead feature. More info: https://moleculer.services/docs/0.13/fault-tolerance.html#Bulkhead
 	bulkhead: {
 		// Enable feature.
 		enabled: false,
@@ -136,13 +137,30 @@ const brokerConfig: BrokerOptions = {
 	},
 
 	// Called after broker starte.
-	started(broker) {
+	async started(broker) {
+		try {
+			/**Connexion */
+			await Modules.get().kafka.connexion()
+			broker.logger.info("kafka adapter has connected successfully.");
+			Modules.get().kafka.push_broker(broker)
+
+		} catch (e) {
+			throw new Errors.MoleculerServerError(
+				"Unable to connect to kafka.",
+				e.message
+			);
+		}
 
 	},
 
 	// Called after broker stopped.
-	stopped(broker) {
-
+	async stopped(broker) {
+		try {
+			await Modules.get().kafka.deconnexion();
+			broker.logger.warn("kafka adapter has disconnected.");
+		} catch (e) {
+			broker.logger.warn("Unable to stop kafka connection gracefully.", e);
+		}
 	},
 
 	// Register custom REPL commands.
